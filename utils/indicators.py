@@ -139,3 +139,58 @@ def momentum_confirmation_short(closes: Sequence[float], lookback: int = 3) -> b
     if len(closes) < lookback + 1:
         return False
     return closes[-1] < closes[-1 - lookback]
+
+
+def _rsi_from_closes(closes: list, period: int = 14) -> float | None:
+    """RSI using Wilder's smoothing. Pure function, no side effects."""
+    if len(closes) < period + 1:
+        return None
+    deltas = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
+    gains  = [d if d > 0 else 0.0 for d in deltas]
+    losses = [-d if d < 0 else 0.0 for d in deltas]
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+    if avg_loss == 0:
+        return 100.0
+    rs = avg_gain / avg_loss
+    return 100.0 - (100.0 / (1.0 + rs))
+
+
+def compute_regime(
+    closes_4h: list,
+    closes_1h: list,
+    ema_period: int,
+    slope_bars: int,
+    rsi_period: int,
+    short_slope_threshold: float,
+    long_slope_threshold: float,
+    short_rsi_threshold: float,
+    long_rsi_threshold: float,
+) -> tuple:
+    """
+    Classify market regime from existing candle data.
+    Use sliced series for replay: compute_regime(closes_4h[:idx_4h+1], closes_1h[:idx_1h+1])
+    Returns (regime_str, reason_str): regime is SHORT | LONG | ASIDE
+    """
+    min_4h = ema_period + slope_bars + 1
+    min_1h = rsi_period + 1
+    if len(closes_4h) < min_4h:
+        return "ASIDE", f"insufficient_4h_data({len(closes_4h)}<{min_4h})"
+    if len(closes_1h) < min_1h:
+        return "ASIDE", f"insufficient_1h_data({len(closes_1h)}<{min_1h})"
+    ema20_4h = ema_series(closes_4h, ema_period)
+    slope = ema_slope_at(ema20_4h, len(ema20_4h) - 1, slope_bars)
+    if slope is None:
+        return "ASIDE", "ema_slope_unavailable"
+    rsi_1h = _rsi_from_closes(closes_1h, rsi_period)
+    if rsi_1h is None:
+        return "ASIDE", "rsi_unavailable"
+    slope_pct = slope * 100
+    if slope < short_slope_threshold and rsi_1h < short_rsi_threshold:
+        return "SHORT", f"slope={slope_pct:.3f}%_rsi={rsi_1h:.1f}"
+    if slope > long_slope_threshold and rsi_1h > long_rsi_threshold:
+        return "LONG", f"slope={slope_pct:.3f}%_rsi={rsi_1h:.1f}"
+    return "ASIDE", f"no_confluence:slope={slope_pct:.3f}%_rsi={rsi_1h:.1f}"
