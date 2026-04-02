@@ -1,0 +1,78 @@
+{
+  "scan_interval_minutes": 8,
+  "max_symbols": 200,
+  "min_score": 75,
+  "min_rr": 2.2,
+  "max_entry_gap_pct": 1.0,
+  "max_open_trades": 1,
+  "risk_per_trade_pct": 0.5,
+  "dry_run": true,
+  "live_trading_enabled": false,
+  "min_usdt_volume_24h": 15000000,
+  "min_open_interest_usdt": 3000000,
+  "preferred_quote_volume_usdt": 50000000,
+  "preferred_open_interest_usdt": 10000000,
+  "min_atr_pct": 0.5,
+  "max_atr_pct": 2.5,
+  "max_bid_ask_spread_pct": 0.0015,
+  "preferred_bid_ask_spread_pct": 0.0008,
+  "funding_warn_abs": 0.0007,
+  "funding_extreme_abs": 0.0015,
+  "funding_abs_filter_cap": 0.004,
+  "api_request_delay_sec": 0.08,
+  "api_max_retries": 3,
+  "api_retry_backoff_sec": 0.75,
+  "contracts_cache_sec": 3600,
+  "bitget_product_type": "USDT-FUTURES",
+  "candle_limits": {
+    "4H": 140,
+    "1H": 180,
+    "5m": 360
+  },
+  "swing_lookback_5m": 48,
+  "pivot_left_bars": 2,
+  "pivot_right_bars": 2,
+  "structure_exclude_last_bars": 3,
+  "min_structure_range_pct": 0.8,
+  "ema_slope_bars": 5,
+  "min_4h_bias_score": 20.0,
+  "min_1h_bias_score": 12.0,
+  "sl_atr_mult": 0.5,
+  "sl_min_pct": 0.15,
+  "tp_atr_buffer_mult": 0.15,
+  "backtest": {
+    "starting_balance_usdt": 1000.0,
+    "default_days": 30,
+    "warmup_days": 35,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT"
+    ],
+    "fee_rate": 0.0006,
+    "slippage_pct": 0.0005,
+    "spread_pct_assumption": 0.0008,
+    "leverage_cap": 3.0,
+    "max_open_trades": 1,
+    "side_filter": "BOTH",
+    "history_limit_per_request": 200,
+    "results_dir": "results/backtests"
+  },
+  "backtest_sweep": {
+    "risk_per_trade_pct_values": [
+      0.25,
+      0.5,
+      1.0
+    ],
+    "fee_rate_values": [],
+    "slippage_pct_values": [],
+    "date_ranges": [],
+    "symbol_sets": [],
+    "results_dir": "results/backtests/sweeps"
+  },
+  "research_sweep": {
+    "symbols": [],
+    "windows": [],
+    "results_dir": "results/backtests/research"
+  }
+}
